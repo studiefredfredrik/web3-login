@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="video-container">
-      <video class="top-video" autoplay loop muted playsinline src="top-video.webm"></video>
+      <video ref="video" class="top-video" autoplay loop muted playsinline src="top-video-reversed.mp4"></video>
     </div>
 
     <div class="header">JWT + WEB3</div>
@@ -50,7 +50,7 @@ export default {
 <style>
 
 body{
-  background-color: #4b19af;
+  background-color: #3a0f8f;
   background-position: 0px 0px;
   background-size: auto;
   font-family: Silka, sans-serif;
@@ -72,7 +72,9 @@ body{
       0deg,
       0deg);
   transform-style: preserve-3d;
-  background-color: #4b19af;
+  /*background-color: #4b19af;*/
+  background-image: linear-gradient(#4b19af, #3a0f8f);
+  height: 100%;
 }
 
 .top-video{
@@ -91,6 +93,7 @@ body{
   display: inline-block;
   vertical-align: baseline;
   box-sizing: border-box;
+  transform: rotate(180deg);
 }
 
 .video-container{
