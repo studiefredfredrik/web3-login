@@ -1,10 +1,17 @@
 <template>
-  <div>
-    <v-btn @click="logIn">Log in</v-btn>
-    <v-btn @click="recover()">Recover</v-btn>
-    <v-text-field v-model="signature" label="input signature to recover address for"></v-text-field>
-    <v-textarea v-model="output1" auto-grow> </v-textarea>
-  </div>
+  <v-app>
+    <v-main>
+      <div>
+        <div>
+          <router-link to="frontpage">Frontpage</router-link>
+        </div>
+        <v-btn @click="logIn">Log in</v-btn>
+        <v-btn @click="recover()">Recover</v-btn>
+        <v-text-field v-model="signature" label="input signature to recover address for"></v-text-field>
+        <v-textarea v-model="output1" auto-grow> </v-textarea>
+      </div>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
