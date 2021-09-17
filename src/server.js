@@ -2,12 +2,13 @@ let express = require('express');
 let bodyParser = require('body-parser');
 let cookieParser = require('cookie-parser');
 let ethSigUtil = require('eth-sig-util');
-let jwt = require('jsonwebtoken');
+let jsonwebtoken = require('jsonwebtoken');
+
+let port = 8070
+let secretKey = 'SuperSecretJwtSigningKey6549819846516515'
 
 let app = express();
-
 app.use('/', express.static('./frontend'))
-
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -15,19 +16,38 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.post('/api/login', async function (req, res) {
     if(!req.body.signedMessage) return res.status(400).send('400')
 
+    // Getting signers address from signature + nonce
     let recoveredAddress = ethSigUtil.recoverPersonalSignature({
         data: req.body.nonce,
         sig: req.body.signedMessage
     });
 
-    let privateKey = fs.readFileSync('private.key');
-    let jwt = jwt.sign({ foo: 'bar' }, privateKey, { algorithm: 'RS256'});
+    // Creating JTW token
+    let userObject = { address: recoveredAddress }
+    let jwt = jsonwebtoken.sign(userObject, secretKey, { algorithm: 'HS256'});
 
+    // Adding JWT token to cookie and sending result
+    res.cookie('authcookie', jwt, { maxAge: 900000, httpOnly: true });
     res.send({
         recoveredAddress: recoveredAddress,
         jwt: jwt
     })
 })
 
-console.log('Servering on: http://localhost:8070')
-app.listen(8070)
+app.get('/api/auth-test', async function (req, res) {
+    if(!req.cookies?.authcookie) return res.status(401).send('401 - Not authorized')
+
+    jsonwebtoken.verify(req.cookies.authcookie, secretKey, function(error, decoded) {
+        if(error) return res.status(401).send('401 - Not authorized, and you are most likely trying something nefarious')
+        if(decoded?.address) return res.status(200).send({address: decoded.address})
+        return res.status(500).send({response:`500 - error`})
+    });
+})
+
+app.delete('/api/login', async function (req, res) {
+    res.clearCookie("authcookie");
+    res.status(201).send()
+})
+
+console.log(`Server running on port: ${port}`)
+app.listen(port)

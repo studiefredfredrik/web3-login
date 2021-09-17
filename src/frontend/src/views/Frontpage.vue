@@ -45,6 +45,13 @@
       </div>
       <img class="arrow" src="arrow.png"/>
       <div class="block">
+        <h1>Test request</h1>
+        <div>Endpoint at /api/auth-test requires the user is logged in</div>
+        <div class="click" @click="testRequest()">Send a request to server</div>
+        <div v-if="lastResponse">{{lastResponse}}</div>
+      </div>
+      <img class="arrow" src="arrow.png"/>
+      <div class="block">
         <h1>Sign out</h1>
         <div>Time for the user to leave</div>
         <div class="click" @click="signOut">Sign out</div>
@@ -70,7 +77,7 @@ export default {
       recoveredAddress: '',
       jwt: '',
       jwtDecoded: '',
-      serverUserResponse: '',
+      lastResponse: '',
       nonce: ''
     }
   },
@@ -96,15 +103,22 @@ export default {
         signedMessage: this.signedMessage,
         nonce: this.nonce
       })
-      this.recoveredAddress = res.data.recovredAddress
+      this.recoveredAddress = res.data.recoveredAddress
       this.jwt = res.data.jwt
     },
     decodeJwt(){
       this.jwtDecoded = jwt.decode(this.jwt)
     },
+    async testRequest() {
+      try{
+        let res = await axios.get('/api/auth-test')
+        this.lastResponse = `Server responded: 200 with data: ${JSON.stringify(res.data)}`
+      } catch(error){
+        this.lastResponse = `Server responded: ${error.response.status}`
+      }
+    },
     signOut(){
-      document.cookie = ''
-      location.reload()
+      axios.delete('/api/login')
     }
   }
 }
