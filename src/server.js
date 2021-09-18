@@ -13,8 +13,13 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 
+let spentNonces = []
+let users = {
+    'someWalletAddressGoesHere' : { name: 'Best user', roles: ['ADMIN', 'DEVELOPER'] }
+}
+
 app.post('/api/login', async function (req, res) {
-    if(!req.body.signedMessage) return res.status(400).send('400')
+    if(!req.body.signedMessage || !req.body.nonce) return res.status(400).send('400 - Invalid payload')
 
     // Getting signers address from signature + nonce
     let recoveredAddress = ethSigUtil.recoverPersonalSignature({
@@ -22,8 +27,16 @@ app.post('/api/login', async function (req, res) {
         sig: req.body.signedMessage
     });
 
+    // We can check the integrity of the signed message for possible nefarious behaviour
+    if(!req.body.nonce.includes(recoveredAddress)) return res.status(400).send('403 - Address in nonce does not match signing address')
+    if(spentNonces.includes(req.body.nonce)) return res.status(400).send('403 - This is obviously a replay attack')
+    spentNonces.push(req.body.nonce)
+
+    // The user is now verified, we can now fetch the user's data from a database etc.
+    let userData = users[recoveredAddress]
+
     // Creating JTW token
-    let userObject = { address: recoveredAddress }
+    let userObject = { address: recoveredAddress, userData: userData }
     let jwt = jsonwebtoken.sign(userObject, secretKey, { algorithm: 'HS256'});
 
     // Adding JWT token to cookie and sending result
@@ -39,7 +52,7 @@ app.get('/api/auth-test', async function (req, res) {
 
     jsonwebtoken.verify(req.cookies.authcookie, secretKey, function(error, decoded) {
         if(error) return res.status(401).send('401 - Not authorized, and you are most likely trying something nefarious')
-        if(decoded?.address) return res.status(200).send({address: decoded.address})
+        if(decoded?.address) return res.status(200).send(decoded)
         return res.status(500).send({response:`500 - error`})
     });
 })

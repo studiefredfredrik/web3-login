@@ -3,7 +3,7 @@
     <v-main>
       <div>
         <div>
-          <router-link to="frontpage">Frontpage</router-link>
+          <router-link to="/">Frontpage</router-link>
         </div>
         <v-btn @click="logIn">Log in</v-btn>
         <v-btn @click="recover()">Recover</v-btn>
@@ -18,7 +18,7 @@
   import Web3 from 'web3'
 
   export default {
-    name: 'Home',
+    name: 'SignAndRecoverTool',
     data(){
       return {
         output1: '',
@@ -47,7 +47,7 @@
         this.print('default account', web3.eth.defaultAccount)
         this.print('sha hash', web3.utils.sha3('test'))
 
-        let res = await web3.eth.personal.sign(this.dataToSign, account, 'not a good password')
+        let res = await web3.eth.personal.sign(this.dataToSign, account, 'password')
         this.output1 = `Signature: ${res}}`
         this.signature = res
       },

@@ -7,7 +7,7 @@
     <div class="header">WEB3 + JWT</div>
     <div class="subsection">
       <div class="block">
-        <h1>Log in with wallet</h1>
+        <h1>Connect a wallet</h1>
         <div>Once you connect a wallet we can see the address. This can sometimes be enough for some read-operations, like on <a href="https://pancakeswap.finance">defi</a></div>
         <div class="click" @click="connect()">Connect</div>
         <div v-if="address">Address: {{address}}</div>
@@ -16,8 +16,8 @@
       <div class="block">
         <h1>Sign message with wallet</h1>
         <div>But if the user want to keep some data secret with our service then we need to verify their identity</div>
-        <div>The wallet signs a message with it's private key. We then use ecrecover to get the address that signed the message</div>
-        <div>The signed message is sent to the server.</div>
+        <div>The wallet signs a message of our choosing with it's private key. The signed message is sent to the server.</div>
+        <div>We then use a recover function to get the address that signed the message</div>
         <div class="click" @click="sign()">Sign</div>
         <div v-if="signedMessage">Signed message: {{signedMessage}}</div>
       </div>
@@ -29,8 +29,8 @@
         <div>You can now create a user account for this user, or fetch an existing user account from a database</div>
         <div>Then encode a JWT with a user object, secured by a secret-key on the server</div>
         <div class="click" @click="sendToServer()">Send to server</div>
-        <div v-if="recoveredAddress">{{recoveredAddress}}</div>
-        <div v-if="jwt">{{jwt}}</div>
+        <div v-if="recoveredAddress">Recovered address: {{recoveredAddress}}</div>
+        <div v-if="jwt">JWT: {{jwt}}</div>
       </div>
       <img class="arrow" src="arrow.png"/>
       <div class="block">
@@ -41,12 +41,12 @@
         <div>Meaning we can read it on the server and use it to identify the user on every request, since we can know that no one has changed it</div>
         <div>Meaning we can read it on the server and know that no one has changed it</div>
         <div class="click" @click="decodeJwt()">Decode JWT</div>
-        <div v-if="jwtDecoded">{{jwtDecoded}}</div>
+        <div v-if="jwtDecoded">JWT decoded: {{jwtDecoded}}</div>
       </div>
       <img class="arrow" src="arrow.png"/>
       <div class="block">
         <h1>Test request</h1>
-        <div>Endpoint at /api/auth-test requires the user is logged in</div>
+        <div>Endpoint at /api/auth-test returns the user object if the user is logged in</div>
         <div class="click" @click="testRequest()">Send a request to server</div>
         <div v-if="lastResponse">{{lastResponse}}</div>
       </div>
@@ -59,6 +59,7 @@
     </div>
     <div class="attribution">
       <a href="https://www.pexels.com/video/rainbow-light-reflection-on-a-soap-bubble-4431322/">Video by Miguel Á. Padriñán from Pexels</a>
+      <a href="/#/SignAndRecoverTool">SignAndRecoverTool</a>
     </div>
   </div>
 </template>
@@ -83,7 +84,6 @@ export default {
   },
   mounted() {
     this.$refs.video.playbackRate = 1;
-    this.nonce = `I want to log in to the WEB3+JWT site (${Math.random()})`
   },
   methods: {
     async connect() {
@@ -95,6 +95,8 @@ export default {
       this.address = accountList[0]
     },
     async sign() {
+      this.nonce = `I want to log in to the WEB3+JWT site with address: ${this.address} and rnd: ${Math.random()}`
+
       let web3 = new Web3(window.ethereum);
       this.signedMessage = await web3.eth.personal.sign(this.nonce, this.address, 'password') // Note that password is not needed when using Metamask, as it handles password management internally
     },
@@ -221,6 +223,7 @@ body{
 .block{
   width: 1000px;
   margin: auto;
+  line-break: anywhere;
 }
 
 .arrow{
@@ -234,6 +237,9 @@ body{
   bottom: 0;
   left: 10px;
   font-size: 8px;
+}
+.attribution a{
+  display: block;
 }
 a{
   color: white;
