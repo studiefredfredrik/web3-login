@@ -4,11 +4,11 @@ let cookieParser = require('cookie-parser');
 let ethSigUtil = require('eth-sig-util');
 let jsonwebtoken = require('jsonwebtoken');
 
-let port = 8070
+let port = 5000
 let secretKey = 'SuperSecretJwtSigningKey6549819846516515'
 
 let app = express();
-app.use('/', express.static('./frontend'))
+app.use('/', express.static('./frontend/dist'))
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
