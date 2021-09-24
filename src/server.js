@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({extended:true}));
 
 let spentNonces = []
 let users = {
-    'someWalletAddressGoesHere' : { name: 'Best user', roles: ['ADMIN', 'DEVELOPER'] }
+    '0x3c4b61221DDadC54A071D564Ee2Da3dFe3111c36' : { name: 'Best user', roles: ['ADMIN', 'DEVELOPER'] }
 }
 
 app.post('/api/login', async function (req, res) {
